@@ -83,3 +83,36 @@ export const updateProfile = async (req: Request) => {
     throw error;
   }
 };
+
+export const deleteProfile = async (req: Request) => {
+  const { password } = req.body;
+  const { uid } = req.params;
+  const filter = {
+    _id: mongoDb.castToObjectId(uid),
+    password,
+  };
+  const update = {
+    $set: {
+      status: 1,
+    },
+  };
+  try {
+    const dbResponse = await userRepository.update(filter, update);
+    if (
+      dbResponse.code === ResponseCodes.UPDATED ||
+      dbResponse.code === ResponseCodes.NOT_MODIFIED ||
+      dbResponse.code === ResponseCodes.NOT_FOUND ||
+      dbResponse.code === ResponseCodes.FAILED
+    ) {
+      return {
+        statusCode: HttpStatusCodes.OK,
+        code: dbResponse.code,
+        message: dbResponse.message,
+        data: dbResponse.data,
+      };
+    }
+    throw Error("Unexpected database response");
+  } catch (error) {
+    throw error;
+  }
+};
