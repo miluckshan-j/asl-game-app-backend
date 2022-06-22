@@ -1,4 +1,5 @@
 import { Request } from "express";
+import * as bcrypt from "bcrypt";
 import * as userRepository from "../repository/user.repository";
 import { ResponseCodes } from "../utils/responseCodes";
 import { HttpStatusCodes } from "../utils/httpStatusCodes";
@@ -7,10 +8,11 @@ import * as mongoDb from "../utils/mongoDb";
 
 export const register = async (req: Request) => {
   const { username, email, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
   const document = {
     username,
     email,
-    password,
+    password: hashedPassword,
   };
   try {
     const dbResponse = await userRepository.insert(document);
@@ -32,23 +34,29 @@ export const login = async (req: Request) => {
   const { email, password } = req.body;
   const filter = {
     email,
-    password,
-  };
-  const options = {
-    projection: { password: 0 },
   };
   try {
-    const dbResponse = await userRepository.find(filter, options);
+    const dbResponse = await userRepository.find(filter);
     if (dbResponse.code === ResponseCodes.OK) {
       const payload = Array.isArray(dbResponse.data)
         ? dbResponse.data[0]
         : dbResponse.data;
-      const token = await jwt.sign(payload);
+      const passwordValidity = await bcrypt.compare(password, payload.password);
+      if (passwordValidity) {
+        delete payload.password;
+        const token = await jwt.sign(payload);
+        return {
+          statusCode: HttpStatusCodes.OK,
+          code: dbResponse.code,
+          message: dbResponse.message,
+          data: { ...payload, token: token },
+        };
+      }
       return {
         statusCode: HttpStatusCodes.OK,
         code: dbResponse.code,
-        message: dbResponse.message,
-        data: { ...payload, token: token },
+        message: "Incorrect password",
+        data: [],
       };
     }
     if (dbResponse.code === ResponseCodes.NOT_FOUND) {
