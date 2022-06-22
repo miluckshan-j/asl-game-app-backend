@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
 import express from "express";
 
+import * as mongoDb from "./utils/mongoDb";
 import * as userController from "./controllers/user.controller";
 
 dotenv.config();
@@ -18,3 +19,5 @@ app.get("/health", userController.health);
 app.listen(port, () => {
   console.log(`Application is running on port ${port}.`);
 });
+
+mongoDb.createConn();
