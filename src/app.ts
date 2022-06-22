@@ -1,5 +1,6 @@
 import * as dotenv from "dotenv";
 import express from "express";
+import * as bodyParser from "body-parser";
 
 import * as mongoDb from "./utils/mongoDb";
 import * as userController from "./controllers/user.controller";
@@ -12,6 +13,9 @@ if (!process.env.PORT) {
 
 const app = express();
 const port: number = parseInt(process.env.PORT as string, 10);
+
+// middlewares
+app.use(bodyParser.json());
 
 // Routes
 app.get("/health", userController.health);
