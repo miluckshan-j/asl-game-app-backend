@@ -21,6 +21,7 @@ app.use(bodyParser.json());
 app.get("/health", userController.health);
 app.post("/register", userController.register);
 app.post("/login", userController.login);
+app.put("/users/:uid", userController.updateProfile);
 
 app.listen(port, () => {
   console.log(`Application is running on port ${port}.`);

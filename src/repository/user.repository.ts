@@ -42,3 +42,40 @@ export const find = async (filter, option?) => {
     throw error;
   }
 };
+
+export const update = async (filter, update) => {
+  try {
+    const collection = mongoDb.client
+      .db(process.env.DB_NAME)
+      .collection(process.env.USERS_COLLECTION_NAME);
+    const response = await collection.updateOne(filter, update);
+    if (response.matchedCount === 1 && response.modifiedCount === 1) {
+      return {
+        code: ResponseCodes.UPDATED,
+        message: "Updated",
+        data: null,
+      };
+    }
+    if (response.matchedCount === 1 && response.modifiedCount === 0) {
+      return {
+        code: ResponseCodes.NOT_MODIFIED,
+        message: "Nothing to modify",
+        data: null,
+      };
+    }
+    if (response.matchedCount === 0) {
+      return {
+        code: ResponseCodes.NOT_FOUND,
+        message: "Not found",
+        data: null,
+      };
+    }
+    return {
+      code: ResponseCodes.FAILED,
+      message: "Failed",
+      data: null,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
