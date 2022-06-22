@@ -2,6 +2,7 @@ import { Request } from "express";
 import * as userRepository from "../repository/user.repository";
 import { ResponseCodes } from "../utils/responseCodes";
 import { HttpStatusCodes } from "../utils/httpStatusCodes";
+import * as jwt from "../utils/jwt";
 import * as mongoDb from "../utils/mongoDb";
 
 export const register = async (req: Request) => {
@@ -33,12 +34,24 @@ export const login = async (req: Request) => {
     email,
     password,
   };
+  const options = {
+    projection: { password: 0 },
+  };
   try {
-    const dbResponse = await userRepository.find(filter);
-    if (
-      dbResponse.code === ResponseCodes.OK ||
-      dbResponse.code === ResponseCodes.NOT_FOUND
-    ) {
+    const dbResponse = await userRepository.find(filter, options);
+    if (dbResponse.code === ResponseCodes.OK) {
+      const payload = Array.isArray(dbResponse.data)
+        ? dbResponse.data[0]
+        : dbResponse.data;
+      const token = await jwt.sign(payload);
+      return {
+        statusCode: HttpStatusCodes.OK,
+        code: dbResponse.code,
+        message: dbResponse.message,
+        data: { ...payload, token: token },
+      };
+    }
+    if (dbResponse.code === ResponseCodes.NOT_FOUND) {
       return {
         statusCode: HttpStatusCodes.OK,
         code: dbResponse.code,
