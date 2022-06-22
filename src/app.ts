@@ -20,6 +20,7 @@ app.use(bodyParser.json());
 // Routes
 app.get("/health", userController.health);
 app.post("/register", userController.register);
+app.post("/login", userController.login);
 
 app.listen(port, () => {
   console.log(`Application is running on port ${port}.`);
