@@ -23,6 +23,7 @@ app.post("/register", userController.register);
 app.post("/login", userController.login);
 app.put("/users/:uid", userController.updateProfile);
 app.delete("/users/:uid", userController.deleteProfile);
+app.post("/users/:uid/results", userController.addGameResult);
 
 app.listen(port, () => {
   console.log(`Application is running on port ${port}.`);

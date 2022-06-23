@@ -137,3 +137,43 @@ export const deleteProfile = async (req: Request) => {
     throw error;
   }
 };
+
+export const addGameResult = async (req: Request) => {
+  const { id, name, results } = req.body;
+  const { uid } = req.params;
+  const filter = {
+    _id: mongoDb.castToObjectId(uid),
+  };
+  const update = {
+    $addToSet: {
+      gamesPlayed: {
+        id,
+        name,
+      },
+      results: {
+        id,
+        name,
+        results,
+      },
+    },
+  };
+  try {
+    const dbResponse = await userRepository.update(filter, update);
+    if (
+      dbResponse.code === ResponseCodes.UPDATED ||
+      dbResponse.code === ResponseCodes.NOT_MODIFIED ||
+      dbResponse.code === ResponseCodes.NOT_FOUND ||
+      dbResponse.code === ResponseCodes.FAILED
+    ) {
+      return {
+        statusCode: HttpStatusCodes.OK,
+        code: dbResponse.code,
+        message: dbResponse.message,
+        data: dbResponse.data,
+      };
+    }
+    throw Error("Unexpected database response");
+  } catch (error) {
+    throw error;
+  }
+};
