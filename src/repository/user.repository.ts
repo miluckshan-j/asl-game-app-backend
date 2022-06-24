@@ -79,3 +79,58 @@ export const update = async (filter, update) => {
     throw error;
   }
 };
+
+// Custom Functions
+
+export const countEntriesOfGameOfUser = async (
+  match: object,
+  gameId: number
+) => {
+  try {
+    const collection = mongoDb.client
+      .db(process.env.DB_NAME)
+      .collection(process.env.USERS_COLLECTION_NAME);
+    const response = await collection
+      .aggregate([
+        {
+          $match: {
+            ...match,
+          },
+        },
+        {
+          $project: {
+            count: {
+              $cond: {
+                if: { $isArray: "$results" },
+                then: {
+                  $size: {
+                    $filter: {
+                      input: "$results",
+                      as: "result",
+                      cond: { $eq: ["$$result.id", gameId] },
+                    },
+                  },
+                },
+                else: 0,
+              },
+            },
+          },
+        },
+      ])
+      .toArray();
+    if (response) {
+      return {
+        code: ResponseCodes.OK,
+        message: "Retrieved count",
+        data: response,
+      };
+    }
+    return {
+      code: ResponseCodes.NOT_FOUND,
+      message: "No matching record count",
+      data: response,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
