@@ -75,14 +75,13 @@ export const login = async (req: Request) => {
 };
 
 export const updateProfile = async (req: Request) => {
-  const { password } = req.body;
-  const { uid } = req.params;
+  const { user, username } = req.body;
   const filter = {
-    _id: mongoDb.castToObjectId(uid),
+    _id: mongoDb.castToObjectId(user._id),
   };
   const update = {
     $set: {
-      password,
+      username,
     },
   };
   try {
@@ -107,11 +106,9 @@ export const updateProfile = async (req: Request) => {
 };
 
 export const deleteProfile = async (req: Request) => {
-  const { password } = req.body;
-  const { uid } = req.params;
+  const { user } = req.body;
   const filter = {
-    _id: mongoDb.castToObjectId(uid),
-    password,
+    _id: mongoDb.castToObjectId(user._id),
   };
   const update = {
     $set: {
@@ -140,10 +137,9 @@ export const deleteProfile = async (req: Request) => {
 };
 
 export const addGameResult = async (req: Request) => {
-  const { id, name, results } = req.body;
-  const { uid } = req.params;
+  const { user, id, name, results } = req.body;
   const filter = {
-    _id: mongoDb.castToObjectId(uid),
+    _id: mongoDb.castToObjectId(user._id),
   };
   const update = {
     $addToSet: {
@@ -162,7 +158,7 @@ export const addGameResult = async (req: Request) => {
   try {
     const dbResponse = await userRepository.update(filter, update);
     if (dbResponse.code === ResponseCodes.UPDATED) {
-      const badge = await addBadge(uid, id, name);
+      const badge = await addBadge(user._id, id, name);
       if (badge.isSuccess) {
         return {
           statusCode: HttpStatusCodes.OK,

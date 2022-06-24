@@ -22,13 +22,9 @@ app.use(bodyParser.json());
 app.get("/health", userController.health);
 app.post("/register", userController.register);
 app.post("/login", userController.login);
-app.put("/users/:uid", authenticateToken, userController.updateProfile);
-app.delete("/users/:uid", authenticateToken, userController.deleteProfile);
-app.post(
-  "/users/:uid/results",
-  authenticateToken,
-  userController.addGameResult
-);
+app.put("/users/me", authenticateToken, userController.updateProfile);
+app.delete("/users/me", authenticateToken, userController.deleteProfile);
+app.post("/users/me/results", authenticateToken, userController.addGameResult);
 
 app.listen(port, () => {
   console.log(`Application is running on port ${port}.`);
