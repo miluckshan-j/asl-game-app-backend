@@ -4,6 +4,7 @@ import * as bodyParser from "body-parser";
 
 import * as mongoDb from "./utils/mongoDb";
 import * as userController from "./controllers/user.controller";
+import { authenticateToken } from "./middlewares/jwt";
 
 dotenv.config();
 
@@ -21,9 +22,13 @@ app.use(bodyParser.json());
 app.get("/health", userController.health);
 app.post("/register", userController.register);
 app.post("/login", userController.login);
-app.put("/users/:uid", userController.updateProfile);
-app.delete("/users/:uid", userController.deleteProfile);
-app.post("/users/:uid/results", userController.addGameResult);
+app.put("/users/:uid", authenticateToken, userController.updateProfile);
+app.delete("/users/:uid", authenticateToken, userController.deleteProfile);
+app.post(
+  "/users/:uid/results",
+  authenticateToken,
+  userController.addGameResult
+);
 
 app.listen(port, () => {
   console.log(`Application is running on port ${port}.`);
