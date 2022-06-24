@@ -1,5 +1,6 @@
 import * as dotenv from "dotenv";
 import express from "express";
+import cors from "cors";
 import * as bodyParser from "body-parser";
 
 import * as mongoDb from "./utils/mongoDb";
@@ -16,6 +17,7 @@ const app = express();
 const port: number = parseInt(process.env.PORT as string, 10);
 
 // middlewares
+app.use(cors());
 app.use(bodyParser.json());
 
 // Routes
