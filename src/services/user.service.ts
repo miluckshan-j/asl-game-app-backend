@@ -216,7 +216,8 @@ const addBadge = async (userId, gameId, gameName) => {
         const update = {
           $addToSet: {
             badges: {
-              achievement: message,
+              achievementMessage: message,
+              achievementCount: dbResponseData.count,
               gameId,
               gameName,
             },
