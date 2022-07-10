@@ -5,6 +5,6 @@ export const badgeCount = [
 ];
 
 export const generateMessage = (count, game) => {
-  const message = `Badge for ${game} for playing ${count} times`;
+  const message = `Badge for playing ${game} ${count} times`;
   return message;
 };

@@ -138,19 +138,19 @@ export const deleteProfile = async (req: Request) => {
 };
 
 export const addGameResult = async (req: Request) => {
-  const { user, id, name, results } = req.body;
+  const { user, gameId, gameName, results } = req.body;
   const filter = {
     _id: mongoDb.castToObjectId(user._id),
   };
   const update = {
     $addToSet: {
       gamesPlayed: {
-        id,
-        name,
+        gameId,
+        gameName,
       },
       results: {
-        id,
-        name,
+        gameId,
+        gameName,
         results,
         date: Date.now(),
       },
@@ -159,7 +159,7 @@ export const addGameResult = async (req: Request) => {
   try {
     const dbResponse = await userRepository.update(filter, update);
     if (dbResponse.code === ResponseCodes.UPDATED) {
-      const badge = await addBadge(user._id, id, name);
+      const badge = await addBadge(user._id, gameId, gameName);
       if (badge.isSuccess) {
         return {
           statusCode: HttpStatusCodes.OK,
@@ -211,8 +211,12 @@ const addBadge = async (userId, gameId, gameName) => {
       const dbResponseData = Array.isArray(dbResponse.data)
         ? dbResponse.data[0]
         : dbResponse.data;
-      if (badges.badgeCount.includes(dbResponseData.count)) {
-        const message = badges.generateMessage(dbResponseData.count, gameName);
+
+      if (badges.badgeCount.includes(dbResponseData.count + 1)) {
+        const message = badges.generateMessage(
+          dbResponseData.count + 1,
+          gameName
+        );
         const update = {
           $addToSet: {
             badges: {
