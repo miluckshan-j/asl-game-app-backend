@@ -24,6 +24,7 @@ app.use(bodyParser.json());
 app.get("/health", userController.health);
 app.post("/register", userController.register);
 app.post("/login", userController.login);
+app.get("/users/me", authenticateToken, userController.retrieveProfile);
 app.put("/users/me", authenticateToken, userController.updateProfile);
 app.delete("/users/me", authenticateToken, userController.deleteProfile);
 app.post("/users/me/results", authenticateToken, userController.addGameResult);

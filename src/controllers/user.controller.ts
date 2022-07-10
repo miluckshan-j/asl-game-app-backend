@@ -45,6 +45,23 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
+export const retrieveProfile = async (req: Request, res: Response) => {
+  try {
+    const response = await userService.retrieveProfile(req);
+    res.status(response.statusCode).json({
+      code: response.code,
+      message: response.message,
+      data: response.data || [],
+    });
+  } catch (error) {
+    res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
+      code: ResponseCodes.FAILED,
+      message: "Something went wrong!",
+      data: [],
+    });
+  }
+};
+
 export const updateProfile = async (req: Request, res: Response) => {
   try {
     const response = await userService.updateProfile(req);

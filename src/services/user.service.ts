@@ -75,6 +75,33 @@ export const login = async (req: Request) => {
   }
 };
 
+export const retrieveProfile = async (req: Request) => {
+  const { user } = req.body;
+  const filter = {
+    _id: mongoDb.castToObjectId(user._id),
+  };
+  try {
+    const dbResponse = await userRepository.find(filter);
+    if (
+      dbResponse.code === ResponseCodes.OK ||
+      dbResponse.code === ResponseCodes.NOT_FOUND
+    ) {
+      const payload = Array.isArray(dbResponse.data)
+        ? dbResponse.data[0]
+        : dbResponse.data;
+      return {
+        statusCode: HttpStatusCodes.OK,
+        code: dbResponse.code,
+        message: dbResponse.message,
+        data: { ...payload },
+      };
+    }
+    throw Error("Unexpected database response");
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const updateProfile = async (req: Request) => {
   const { user, username } = req.body;
   const filter = {
